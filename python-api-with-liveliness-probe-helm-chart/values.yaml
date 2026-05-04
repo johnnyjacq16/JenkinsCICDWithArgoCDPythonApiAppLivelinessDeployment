@@ -1,0 +1,23 @@
+replicaCount: 2
+
+image:
+  repository: 522836376191.dkr.ecr.eu-north-1.amazonaws.com/ecr-python-api
+  tag: latest
+
+service:
+  port: 80
+
+redis:
+  image: redis:7
+  port: 6379
+  password: redis-123
+
+persistence:
+  enabled: true
+  storageClass: "gp2"
+  size: 1Gi
+  
+ingress:
+  enabled: true
+  host: localhost
+  path: /api/(.*)
