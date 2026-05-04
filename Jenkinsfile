@@ -6,6 +6,8 @@ pipeline {
         ACCOUNT_ID = '522836376191'
         IMAGE_REPO = "${ACCOUNT_ID}.dkr.ecr.${AWS_REGION}.amazonaws.com/ecr-python-api"
         IMAGE_TAG = "${BUILD_NUMBER}"
+        HELM_CHART_DIRECTORY = "python-api-with-liveliness-probe-helm-chart"
+        DOCKER_IMAGE_NAME = "python-api"
     }
 
     stages {
@@ -13,13 +15,13 @@ pipeline {
         stage('Checkout') {
             steps {
                 git branch: 'main',
-                url: 'https://github.com/YOUR_USERNAME/YOUR_REPO.git'
+                url: 'https://github.com/johnnyjacq16/JenkinsCICDWithArgoCDPythonApiAppLivelinessDeployment.git'
             }
         }
 
         stage('Build Docker Image') {
             steps {
-                sh 'docker build -t python-api:${IMAGE_TAG} .'
+                sh 'docker build -t ${DOCKER_IMAGE_NAME}:${IMAGE_TAG} .'
             }
         }
 
@@ -37,7 +39,7 @@ pipeline {
         stage('Push Image') {
             steps {
                 sh '''
-                docker tag python-api:${IMAGE_TAG} $IMAGE_REPO:${IMAGE_TAG}
+                docker tag ${DOCKER_IMAGE_NAME}:${IMAGE_TAG} $IMAGE_REPO:${IMAGE_TAG}
                 docker push $IMAGE_REPO:${IMAGE_TAG}
                 '''
             }
@@ -46,7 +48,7 @@ pipeline {
         stage('Update Helm Values') {
             steps {
                 sh '''
-                sed -i "s/tag:.*/tag: ${IMAGE_TAG}/" python-api-chart/values.yaml
+                sed -i "s/tag:.*/tag: ${IMAGE_TAG}/" ${HELM_CHART_DIRECTORY}/values.yaml
                 '''
             }
         }
@@ -57,7 +59,7 @@ pipeline {
                 git config user.email "jenkins@company.com"
                 git config user.name "jenkins"
 
-                git add python-api-chart/values.yaml
+                git add ${HELM_CHART_DIRECTORY}/values.yaml
                 git commit -m "Deploy image ${IMAGE_TAG}" || true
                 git push origin main
                 '''
