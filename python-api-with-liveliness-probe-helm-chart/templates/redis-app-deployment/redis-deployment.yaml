@@ -1,0 +1,37 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: redis
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: redis-link-service-to-redis-app-label
+  template:
+    metadata:
+      labels:
+        app: redis-link-service-to-redis-app-label
+    spec:
+      containers:
+        - name: redis
+          image: {{ .Values.redis.image }}
+          # 1. Added the startup command to require a password
+          command: ["redis-server"]
+          args: ["--requirepass", "$(REDIS_PASSWORD)"]
+          ports:
+            - containerPort: {{ .Values.redis.port }}
+          # 2. Added the Environment Variable link to your Secret
+          env:
+            - name: REDIS_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Release.Name }}-secret # Ensure this matches your Secret name
+                  key: REDIS_PASSWORD
+          volumeMounts:
+            - name: redis-storage
+              mountPath: /data
+      volumes:
+        - name: redis-storage
+          persistentVolumeClaim:
+            # Note: Changed to match your PVC name logic
+            claimName: {{ .Release.Name }}-pvc

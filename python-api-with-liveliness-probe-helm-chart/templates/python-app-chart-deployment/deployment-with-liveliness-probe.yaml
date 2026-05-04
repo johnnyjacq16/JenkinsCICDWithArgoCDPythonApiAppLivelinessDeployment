@@ -1,0 +1,40 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: python-api
+spec:
+  replicas: {{ .Values.replicaCount }}
+  selector:
+    matchLabels:
+      app: python-api-link-service-to-python-app-label
+  template:
+    metadata:
+      labels:
+        app: python-api-link-service-to-python-app-label
+    spec:
+      containers:
+        - name: python-api
+          image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          ports:
+            - containerPort: 8000
+          
+          # New Health Checks added here
+          livenessProbe:
+            httpGet:
+              path: /health
+              port: 8000
+            initialDelaySeconds: 5
+            periodSeconds: 10
+          readinessProbe:
+            httpGet:
+              path: /health
+              port: 8000
+            initialDelaySeconds: 5
+            periodSeconds: 10
+
+          envFrom:
+            - configMapRef:
+                name: {{ .Release.Name }}-cm
+            - secretRef:
+                name: {{ .Release.Name }}-secret

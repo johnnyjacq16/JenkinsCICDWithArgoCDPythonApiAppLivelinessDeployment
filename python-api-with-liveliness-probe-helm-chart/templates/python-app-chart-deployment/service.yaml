@@ -1,0 +1,15 @@
+apiVersion: v1
+kind: Service
+
+metadata:
+  name: python-api-link-service-to-ingress
+
+spec:
+  type: LoadBalancer
+
+  selector:
+    app: python-api-link-service-to-python-app-label
+
+  ports:
+    - port: {{ .Values.service.port }}
+      targetPort: 8000
