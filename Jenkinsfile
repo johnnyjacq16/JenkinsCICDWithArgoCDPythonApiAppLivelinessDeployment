@@ -52,21 +52,26 @@ pipeline {
         }
 
         stage('Commit Manifest Change') {
-            steps {
-                withCredentials([usernamePassword(credentialsId: 'JenkinsAccessToMyGitRepo', passwordVariable: 'GIT_PASSWORD', usernameVariable: 'GIT_USERNAME')])
-
-                sh '''
-                git config user.email "jenkins@company.com"
-                git config user.name "jenkins"
-
-                # Update the remote URL to include the credentials for this session
-                git remote set-url origin https://${GIT_USERNAME}:${GIT_PASSWORD}@github.com/johnnyjacq16/JenkinsCICDWithArgoCDPythonApiAppLivelinessDeployment.git
-
-                git add ${HELM_CHART_DIRECTORY}/values.yaml
-                git commit -m "Deploy image ${IMAGE_TAG}" || true
-                git push origin main
-                '''
-            }
+            steps {      
+                    withCredentials([usernamePassword(
+                        credentialsId: 'JenkinsAccessToMyGitRepo', 
+                        passwordVariable: 'GIT_PASSWORD', 
+                        usernameVariable: 'GIT_USERNAME'
+                    )]) { 
+                        // All your Git commands MUST be inside these braces
+                        sh '''
+                            git config user.email "jenkins@company.com"
+                            git config user.name "jenkins"
+                            
+                            # Update the remote URL to include the credentials
+                            git remote set-url origin https://${GIT_USERNAME}:${GIT_PASSWORD}@github.com/johnnyjacq16/JenkinsCICDWithArgoCDPythonApiAppLivelinessDeployment.git
+            
+                            git add ${HELM_CHART_DIRECTORY}/values.yaml
+                            git commit -m "Deploy image ${IMAGE_TAG}" || true
+                            git push origin main
+                        '''
+                    }
+              }
         }
     }
 
