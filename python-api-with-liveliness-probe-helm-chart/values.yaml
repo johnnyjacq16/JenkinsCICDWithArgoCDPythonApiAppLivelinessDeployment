@@ -2,7 +2,7 @@ replicaCount: 2
 
 image:
   repository: 522836376191.dkr.ecr.eu-north-1.amazonaws.com/ecr-python-api
-  tag: latest
+  tag: 9
 
 service:
   port: 80
