@@ -53,9 +53,6 @@ pipeline {
 
         stage('Commit Manifest Change') {
             steps {
-                # "Name must match the name given the Manage Jenkins > Credentials > System > Global credentials Name was JenkinsAccessToMyGitRepo"
-                # "In the credentialsId"
-                 
                 withCredentials([usernamePassword(credentialsId: 'JenkinsAccessToMyGitRepo', passwordVariable: 'GIT_PASSWORD', usernameVariable: 'GIT_USERNAME')])
 
                 sh '''
